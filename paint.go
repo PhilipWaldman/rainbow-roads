@@ -41,6 +41,7 @@ func init() {
 	rendering := &pflag.FlagSet{}
 	rendering.UintVarP(&paintOpts.Width, "width", "w", 1000, "width of the generated image in pixels")
 	rendering.BoolVar(&paintOpts.NoWatermark, "no_watermark", false, "suppress the embedded project name and version string")
+	rendering.BoolVar(&paintOpts.Minimalist, "minimal", false, "only paint the paths of the activities")
 	rendering.VisitAll(func(f *pflag.Flag) { paintCmd.Flags().Var(f.Value, f.Name, f.Usage) })
 
 	filters := filterFlagSet(&paintOpts.Selector)

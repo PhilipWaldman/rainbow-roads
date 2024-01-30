@@ -56,6 +56,7 @@ type Options struct {
 	Region      geo.Circle
 	NoWatermark bool
 	Selector    parse.Selector
+	Minimalist  bool
 }
 
 func Run(opts *Options) error {
@@ -81,9 +82,17 @@ func Run(opts *Options) error {
 		o.Output += ".png"
 	}
 
-	for _, step := range []func() error{scanStep, parseStep, fetchStep, renderStep, saveStep} {
-		if err := step(); err != nil {
-			return err
+	if o.Minimalist {
+		for _, step := range []func() error{scanStep, parseStep, renderStep, saveStep} {
+			if err := step(); err != nil {
+				return err
+			}
+		}
+	} else {
+		for _, step := range []func() error{scanStep, parseStep, fetchStep, renderStep, saveStep} {
+			if err := step(); err != nil {
+				return err
+			}
 		}
 	}
 
