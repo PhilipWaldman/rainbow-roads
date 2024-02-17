@@ -13,11 +13,13 @@ import (
 	"golang.org/x/image/colornames"
 )
 
+// ColorGradient represents a gradient of colors
 type ColorGradient []struct {
-	colorful.Color
-	pos float64
+	colorful.Color         // Represents a color
+	pos            float64 // Represents the position of the color in the gradient
 }
 
+// Parse parses a string representing a color gradient
 func (c *ColorGradient) Parse(str string) error {
 	if str == "" {
 		return errors.New("unexpected empty value")
@@ -83,6 +85,7 @@ func (c *ColorGradient) Parse(str string) error {
 	return nil
 }
 
+// String returns the string representation of the color gradient
 func (c *ColorGradient) String() string {
 	parts := make([]string, len(*c))
 	for i, e := range *c {
@@ -101,6 +104,7 @@ func (c *ColorGradient) String() string {
 	return strings.Join(parts, ",")
 }
 
+// GetColorAt returns the color at a specific position in the gradient
 func (c *ColorGradient) GetColorAt(p float64) color.Color {
 	last := len(*c) - 1
 	for i := 0; i < last; i++ {

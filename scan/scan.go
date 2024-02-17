@@ -13,11 +13,13 @@ import (
 	"strings"
 )
 
+// File represents a file with its extension and an opener function
 type File struct {
-	Ext    string
-	Opener func() (io.Reader, error)
+	Ext    string                    // Ext represents the file extension
+	Opener func() (io.Reader, error) // Opener is a function to open the file and return an io.Reader
 }
 
+// Scan scans the provided paths and returns a slice of files and an error if any
 func Scan(paths []string) ([]*File, error) {
 	var files []*File
 	err := walkPaths(paths, func(fsys fs.FS, path string) error {
@@ -39,6 +41,7 @@ func Scan(paths []string) ([]*File, error) {
 	return files, err
 }
 
+// walkPaths walks through the provided paths and executes the given function on each path
 func walkPaths(paths []string, fn func(fsys fs.FS, path string) error) error {
 	for _, path := range paths {
 		paths := []string{path}
@@ -77,6 +80,7 @@ func walkPaths(paths []string, fn func(fsys fs.FS, path string) error) error {
 	return nil
 }
 
+// walkDir walks through a directory and executes the given function on each file
 func walkDir(fsys fs.FS, path string, fn func(fsys fs.FS, path string) error) error {
 	return fs.WalkDir(fsys, path, func(path string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
@@ -87,6 +91,7 @@ func walkDir(fsys fs.FS, path string, fn func(fsys fs.FS, path string) error) er
 	})
 }
 
+// walkFile walks through a file and executes the given function if it's not a zip file
 func walkFile(fsys fs.FS, path string, fn func(fsys fs.FS, path string) error) error {
 	if strings.EqualFold(filepath.Ext(path), ".zip") {
 		if f, err := fsys.Open(path); err != nil {

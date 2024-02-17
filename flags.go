@@ -18,6 +18,7 @@ import (
 	"github.com/spf13/pflag"
 )
 
+// filterFlagSet sets the filter flags from the command.
 func filterFlagSet(selector *parse.Selector) *pflag.FlagSet {
 	fs := &pflag.FlagSet{}
 	fs.Var((*SportsFlag)(&selector.Sports), "sport", "sports to include, can be specified multiple times, eg running, cycling")
@@ -36,20 +37,25 @@ func filterFlagSet(selector *parse.Selector) *pflag.FlagSet {
 	return fs
 }
 
+// flagError generates the error message to show when there is a flag error.
 func flagError(name string, value any, reason string) error {
 	return fmt.Errorf("invalid value %q for flag --%s: %s\n", value, name, reason)
 }
 
+// ColorsFlag is the flag type for color gradients.
 type ColorsFlag img.ColorGradient
 
+// Type returns the type string of the ColorsFlag.
 func (c *ColorsFlag) Type() string {
 	return "colors"
 }
 
+// Set parses the string representation of the color gradient and sets the value of ColorsFlag.
 func (c *ColorsFlag) Set(str string) error {
 	return (*img.ColorGradient)(c).Parse(str)
 }
 
+// String returns the string representation of the ColorsFlag.
 func (c *ColorsFlag) String() string {
 	if c == nil {
 		return ""
@@ -57,12 +63,15 @@ func (c *ColorsFlag) String() string {
 	return (*img.ColorGradient)(c).String()
 }
 
+// SportsFlag is the flag type for a list of sports.
 type SportsFlag []string
 
+// Type returns the type string of the SportsFlag.
 func (s *SportsFlag) Type() string {
 	return "sports"
 }
 
+// Set parses the comma-seperated string of sports and sets the values to SportsFlag.
 func (s *SportsFlag) Set(str string) error {
 	if str == "" {
 		return errors.New("unexpected empty value")
@@ -73,17 +82,21 @@ func (s *SportsFlag) Set(str string) error {
 	return nil
 }
 
+// String returns the string representation of the SportsFlag.
 func (s *SportsFlag) String() string {
 	sort.Strings(*s)
 	return strings.Join(*s, ",")
 }
 
+// DateFlag is the flag type for the date and time.
 type DateFlag time.Time
 
+// Type returns the type string of the DateFlag.
 func (d *DateFlag) Type() string {
 	return "date"
 }
 
+// Set parses the date string and sets the value of DateFlag.
 func (d *DateFlag) Set(str string) error {
 	if str == "" {
 		return errors.New("unexpected empty value")
@@ -96,6 +109,7 @@ func (d *DateFlag) Set(str string) error {
 	}
 }
 
+// String returns the string representation of the DateFlag.
 func (d *DateFlag) String() string {
 	if d == nil || time.Time(*d).IsZero() {
 		return ""
@@ -103,12 +117,15 @@ func (d *DateFlag) String() string {
 	return time.Time(*d).String()
 }
 
+// DurationFlag is the flag type for the duration of an activity.
 type DurationFlag time.Duration
 
+// Type returns the type string of the DurationFlag.
 func (d *DurationFlag) Type() string {
 	return "duration"
 }
 
+// Set parses the duration string and sets the value of DurationFlag.
 func (d *DurationFlag) Set(str string) error {
 	if str == "" {
 		return errors.New("unexpected empty value")
@@ -130,6 +147,7 @@ func (d *DurationFlag) Set(str string) error {
 	return nil
 }
 
+// String returns the string representation of the DurationFlag.
 func (d *DurationFlag) String() string {
 	if d == nil || *d == 0 {
 		return ""
@@ -137,12 +155,15 @@ func (d *DurationFlag) String() string {
 	return time.Duration(*d).String()
 }
 
+// DistanceFlag is the flag type for the distance of an activity.
 type DistanceFlag float64
 
+// Type returns the type string of the DistanceFlag.
 func (d *DistanceFlag) Type() string {
 	return "distance"
 }
 
+// Set parses the distance string and sets the value of DistanceFlag.
 func (d *DistanceFlag) Set(str string) error {
 	if str == "" {
 		return errors.New("unexpected empty value")
@@ -155,18 +176,23 @@ func (d *DistanceFlag) Set(str string) error {
 	}
 }
 
+// String returns the string representation of the DistanceFlag.
 func (d *DistanceFlag) String() string {
 	return conv.FormatFloat(float64(*d))
 }
 
+// PaceFlag is the flag type for the pace of an activity.
 type PaceFlag time.Duration
 
+// Type returns the type string of the PaceFlag.
 func (p *PaceFlag) Type() string {
 	return "pace"
 }
 
+// paceRE is the regular expression that the pace string must follow.
 var paceRE = regexp.MustCompile(`^([^/]+)(/([^/]+))?$`)
 
+// Set parses the pace string and sets the value of PaceFlag.
 func (p *PaceFlag) Set(str string) error {
 	if str == "" {
 		return errors.New("unexpected empty value")
@@ -189,6 +215,7 @@ func (p *PaceFlag) Set(str string) error {
 	return nil
 }
 
+// String returns the string representation of the PaceFlag.
 func (p *PaceFlag) String() string {
 	if p == nil || *p == 0 {
 		return ""
@@ -196,12 +223,15 @@ func (p *PaceFlag) String() string {
 	return time.Duration(*p).String()
 }
 
+// CircleFlag is the flag type for representing circles.
 type CircleFlag geo.Circle
 
+// Type returns the type string of the CircleFlag.
 func (c *CircleFlag) Type() string {
 	return "circle"
 }
 
+// Set parses the circle string and sets the value of CircleFlag.
 func (c *CircleFlag) Set(str string) error {
 	if str == "" {
 		return errors.New("unexpected empty value")
@@ -230,6 +260,7 @@ func (c *CircleFlag) Set(str string) error {
 	}
 }
 
+// String returns the string representation of the CircleFlag.
 func (c *CircleFlag) String() string {
 	if c == nil || geo.Circle(*c).IsZero() {
 		return ""
@@ -237,8 +268,10 @@ func (c *CircleFlag) String() string {
 	return geo.Circle(*c).String()
 }
 
+// distanceRE is the regular expression that a distance string must follow.
 var distanceRE = regexp.MustCompile(`^(.*\d)\s?(\w+)?$`)
 
+// parseDistance parses a distance string and returns that distance as a float.
 func parseDistance(str string) (float64, error) {
 	if m := distanceRE.FindStringSubmatch(str); len(m) != 3 {
 		return 0, errors.New("format not recognized")

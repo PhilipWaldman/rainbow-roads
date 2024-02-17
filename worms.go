@@ -9,13 +9,16 @@ import (
 )
 
 var (
+	// wormsOpts are the options to make the worms animation
 	wormsOpts = &worms.Options{
 		Title:   Title,
 		Version: Version,
 	}
+	// wormsCmd represents the "worms" command
 	wormsCmd = &cobra.Command{
 		Use:   "worms",
 		Short: "Animate exercise activities",
+		// Pre-checks to ensure value are in bounds
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			if wormsOpts.Frames == 0 {
 				return flagError("frames", wormsOpts.Frames, "must be positive")
@@ -34,6 +37,7 @@ var (
 			}
 			return nil
 		},
+		// Run the command
 		RunE: func(_ *cobra.Command, args []string) error {
 			wormsOpts.Input = args
 			return worms.Run(wormsOpts)
@@ -42,13 +46,16 @@ var (
 )
 
 func init() {
+	// Add the "worms" command to the root command
 	rootCmd.AddCommand(wormsCmd)
 
+	// General flags (output location and format)
 	general := &pflag.FlagSet{}
 	general.StringVarP(&wormsOpts.Output, "output", "o", "out", "optional path of the generated file")
 	general.StringVarP(&wormsOpts.Format, "format", "f", "gif", "output file format string, supports gif, png, zip")
 	general.VisitAll(func(f *pflag.Flag) { wormsCmd.Flags().Var(f.Value, f.Name, f.Usage) })
 
+	// Rendering flags (fps, width, colors, etc)
 	rendering := &pflag.FlagSet{}
 	rendering.UintVar(&wormsOpts.Frames, "frames", 200, "number of animation frames")
 	rendering.UintVar(&wormsOpts.FPS, "fps", 20, "animation frame rate")
@@ -61,9 +68,11 @@ func init() {
 	rendering.BoolVar(&wormsOpts.NoWatermark, "no_watermark", false, "suppress the embedded project name and version string")
 	rendering.VisitAll(func(f *pflag.Flag) { wormsCmd.Flags().Var(f.Value, f.Name, f.Usage) })
 
+	// Filtering flags
 	filters := filterFlagSet(&wormsOpts.Selector)
 	filters.VisitAll(func(f *pflag.Flag) { wormsCmd.Flags().Var(f.Value, f.Name, f.Usage) })
 
+	// Prints the help command
 	wormsCmd.SetUsageFunc(func(*cobra.Command) error {
 		fmt.Fprintln(wormsCmd.OutOrStderr())
 		fmt.Fprintln(wormsCmd.OutOrStderr(), "Usage:")
